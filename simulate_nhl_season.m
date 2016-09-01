@@ -9,26 +9,28 @@ central_rng      = [7 8 10 15 17 25 30];
 pacific_rng      = [1 2  5 12 14 24 28];
 
 % get game information and set start date for simultation 
-sim_date    = [2016, 2, 15];
+sim_date    = [2016, 4, 10];
 games       = csvread('all_games_201516.csv', 2, 0);
 dates       = unique(datenum(games(:,2),games(:,3),games(:,4)));
 real_points = generate_points_matrix(dates, games);
 
 % get games played (given start date)
-played_rng    = find(games(:,2) < sim_date(1) | ... % year is less
-                     games(:,2) == sim_date(1) ...
-                   & games(:,3) < sim_date(2) | ... % month is less
+played_rng    = find(games(:,2) <  sim_date(1) | ... % year is less
+                     games(:,2) == sim_date(1)   ...
+                   & games(:,3) <  sim_date(2) | ... % month is less
                      games(:,2) == sim_date(1) & games(:,3) == sim_date(2) ...
                    & games(:,4) <= sim_date(3)); % day is less (or equal)
 unplayed_rng  = setdiff(games(:,1),played_rng);
                
 % stores pcts of particular team to score certain number of goals
-% goals_pcts(i,j) = prob of team i scoring j goals in reg. time (1<j<15)
-% goals_pcts(i,16) = prob of team i scoring in OT
-goal_pcts = zeros(30,16);
+% goals_pcts(i,j ) = prob of team i scoring j goals in reg. time (1 <= j <= 15)
+% goals_pcts(i,j ) = prob of team i letting up j goals in regulation
+%                    (16 <= j <= 30)
+% goals_pcts(i,31) = prob of team i scoring in OT
+goal_pcts = zeros(30,31);
 for i = 1:30,
-    [reg_goals, OT_goals] = calculate_goal_pcts(i, games, played_rng);
-    goal_pcts(i,:) = [reg_goals, OT_goals];
+    [GF_pcts, GA_pcts, OG_pcts] = calculate_goal_pcts(i, games, played_rng);
+    goal_pcts(i,:)              = [GF_pcts, GA_pcts, OG_pcts];
 end
 
 %% simulate season many times

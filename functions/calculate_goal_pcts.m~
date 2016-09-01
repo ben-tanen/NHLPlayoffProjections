@@ -1,4 +1,4 @@
-function [GF_pcts, GA_pcts, OG_pcts] = calculate_goal_pcts(team_i, games, played_rng)
+function [GF_pcts, OT_goal_pcts] = calculate_goal_pcts(team_i, games, played_rng)
 % arguments:
 % - team_i:     the index of the team to calculate
 % - games:      matrix of game data (taken from CSV file)
@@ -21,17 +21,12 @@ function [GF_pcts, GA_pcts, OG_pcts] = calculate_goal_pcts(team_i, games, played
                           intersect(find(games(:,10) == 1),team_away_rng));
     team_loss_rng = setdiff(union(team_away_rng,team_home_rng), team_win_rng);
 
-    % determine the spread of goals scored and against in regular season
+    % determine the spread of goals scored in regular season
     GF_pcts = zeros(1,15);
-    GA_pcts = zeros(1,15);
     for i = 1:15
         % number of times i goals scored in regular game
-        reg_GF  = sum(games(intersect(team_home_rng, team_reg_rng), 6) == i - 1) + ...
-                  sum(games(intersect(team_away_rng, team_reg_rng), 9) == i - 1);
-              
-        % number of times i goals scored against in regular game
-        reg_GA  = sum(games(intersect(team_home_rng, team_reg_rng), 9) == i - 1) + ...
-                  sum(games(intersect(team_away_rng, team_reg_rng), 6) == i - 1);
+        reg_occurence  = sum(games(intersect(team_home_rng, team_reg_rng), 6) == i - 1) + ...
+                         sum(games(intersect(team_away_rng, team_reg_rng), 9) == i - 1);
 
         % number of times i goals scored in OT game and team lost          
         OT_L_occurence = sum(games(intersect(intersect(team_home_rng,team_OT_rng),team_loss_rng),6) == i - 1) + ...
@@ -41,15 +36,12 @@ function [GF_pcts, GA_pcts, OG_pcts] = calculate_goal_pcts(team_i, games, played
         OT_W_occurence = sum(games(intersect(intersect(team_home_rng,team_OT_rng),team_win_rng),6) == i) + ...
                          sum(games(intersect(intersect(team_away_rng,team_OT_rng),team_win_rng),9) == i);
 
-        GF_pcts(i) = (reg_GF + OT_L_occurence + OT_W_occurence) / ...
-                      size(union(team_home_rng,team_away_rng),1);
-                  
-        GA_pcts(i) = (reg_GA + OT_L_occurence + OT_W_occurence) / ...
-                      size(union(team_home_rng,team_away_rng),1);
+        GF_pcts(i) = (reg_occurence + OT_L_occurence + OT_W_occurence) / ...
+                            size(union(team_home_rng,team_away_rng),1);
     end
 
     % determine OT goals
-    OG_pcts = (sum(games(intersect(team_away_rng,team_OT_rng),10)) +  ...
+    OT_goal_pcts = (sum(games(intersect(team_away_rng,team_OT_rng),10)) +  ...
                      sum(games(intersect(team_home_rng,team_OT_rng), 7))) / ...
                      max(size(team_OT_rng,1),1);
 end
