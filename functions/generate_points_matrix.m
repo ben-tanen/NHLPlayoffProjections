@@ -1,7 +1,8 @@
-function [points] = generate_points_matrix(dates, games)
+function [points] = generate_points_matrix(dates, games, reset_date)
 % arguments:
 % - dates: array containing distinct days games are played on
 % - games: matrix of game data (taken from CSV file)
+% - reset: array for date to reset points (for multiple seasons)
 %
 % returns:
 % - points: matrix containing points earned throughout season for each team
@@ -11,8 +12,11 @@ function [points] = generate_points_matrix(dates, games)
         date_i  = find(dates == datenum(games(i,2),games(i,3),games(i,4)));
         teamA_i = games(i,5);
         teamB_i = games(i,8);
-
-        if (sum(points(date_i,2:end)) == 0 && date_i > 1)
+        
+        if (datenum(games(i,2),games(i,3),games(i,4)) ...
+            == datenum(reset_date(1),reset_date(2),reset_date(3)))
+            points(date_i,2:end) = zeros(1,30);
+        elseif (sum(points(date_i,2:end)) == 0 && date_i > 1)
             points(date_i,2:end) = points(date_i - 1,2:end);
         end
 

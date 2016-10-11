@@ -9,10 +9,10 @@ central_rng      = [7 8 10 15 17 25 30];
 pacific_rng      = [1 2  5 12 14 24 28];
 
 % get game information and set start date for simultation 
-sim_date    = [2016, 4, 10];
-games       = csvread('all_games_201516.csv', 2, 0);
+sim_date    = [2016, 10, 11];
+games       = csvread('all_games_201617.csv', 2, 0);
 dates       = unique(datenum(games(:,2),games(:,3),games(:,4)));
-real_points = generate_points_matrix(dates, games);
+% real_points = generate_points_matrix(dates, games);
 
 % get games played (given start date)
 played_rng    = find(games(:,2) <  sim_date(1) | ... % year is less
@@ -52,7 +52,7 @@ for n = 1:num_iter
     end
 
     % convert game results into points per team
-    points = generate_points_matrix(dates, games);
+    points = generate_points_matrix(dates, games, [2016, 10, 12]);
     avg_points(:,2:end) = avg_points(:,2:end) + points(:,2:end);
 end
 
@@ -106,7 +106,7 @@ for t = teams_to_plot
     plot(dates, avg_points(:,t + 1), '--', 'Color', team_colors(t,:), 'DisplayName', strcat(teams(t*3-2:t*3), ' Projected'));
 end
 
-axis([datenum(2015,10,1) datenum(2016,4,10) 0 125])
+axis([datenum(2016,9,10) datenum(2016,4,10) 0 125])
 title(strcat('Actual Performance vs. Projected (Simulation Starting   ',datestr(d), ')'))
 legend('Location','northwest')
 ylabel('Points')
